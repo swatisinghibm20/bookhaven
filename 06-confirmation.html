@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BookHaven – Order Confirmed!</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; background: #f3f4f6; min-height: 100vh; display: flex; flex-direction: column; }
+  header { background: #1e3a5f; color: #fff; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .logo { font-size: 20px; font-weight: 800; } .logo span { color: #f59e0b; }
+  .nav-links { display: flex; gap: 24px; font-size: 14px; }
+  .nav-links a { color: #cbd5e1; text-decoration: none; }
+  .nav-right { font-size: 14px; color: #cbd5e1; }
+
+  /* STEPS */
+  .steps { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 14px 32px; display: flex; align-items: center; justify-content: center; gap: 0; }
+  .step { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .step.done { color: #059669; font-weight: 600; }
+  .step-circle { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .step.done .step-circle { background: #059669; border-color: #059669; color: #fff; }
+  .step-line { width: 60px; height: 2px; background: #059669; margin: 0 4px; }
+
+  main { flex: 1; padding: 32px 16px 48px; display: flex; justify-content: center; }
+  .container { max-width: 760px; width: 100%; }
+
+  /* HERO CONFIRMATION */
+  .hero { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 36px 36px 28px; text-align: center; margin-bottom: 20px; }
+  .hero .checkmark { width: 72px; height: 72px; background: #d1fae5; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 16px; }
+  .hero h1 { font-size: 26px; font-weight: 800; color: #065f46; margin-bottom: 8px; }
+  .hero p.lead { font-size: 15px; color: #374151; margin-bottom: 20px; line-height: 1.6; }
+  .order-id { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; display: inline-block; padding: 8px 22px; font-size: 14px; color: #065f46; font-weight: 700; letter-spacing: 1px; margin-bottom: 20px; }
+  .email-note { font-size: 13px; color: #6b7280; }
+  .email-note strong { color: #1f2328; }
+
+  /* ORDER DETAILS */
+  .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .detail-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px 18px; }
+  .detail-box h3 { font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .detail-box p { font-size: 14px; color: #1f2328; line-height: 1.6; }
+  .detail-box .highlight { font-size: 15px; font-weight: 700; color: #1e3a5f; }
+
+  /* ITEMS ORDERED */
+  .items-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+  .items-box h3 { font-size: 15px; font-weight: 700; color: #1e3a5f; margin-bottom: 14px; }
+  .order-item { display: flex; gap: 14px; align-items: center; padding: 10px 0; border-bottom: 1px solid #f3f4f6; }
+  .order-item:last-child { border-bottom: none; }
+  .item-thumb { width: 44px; height: 58px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .it1 { background: #dbeafe; } .it2 { background: #fce7f3; } .it3 { background: #d1fae5; }
+  .item-details { flex: 1; }
+  .item-details h4 { font-size: 14px; font-weight: 700; color: #1f2328; margin-bottom: 2px; }
+  .item-details p { font-size: 12px; color: #6b7280; }
+  .item-price { font-size: 15px; font-weight: 700; color: #1e3a5f; }
+  .total-line { display: flex; justify-content: flex-end; gap: 12px; font-size: 16px; font-weight: 700; color: #1f2328; padding-top: 12px; border-top: 1px solid #e5e7eb; margin-top: 4px; }
+
+  /* DELIVERY TRACKER */
+  .tracker-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+  .tracker-box h3 { font-size: 15px; font-weight: 700; color: #1e3a5f; margin-bottom: 16px; }
+  .tracker { display: flex; align-items: flex-start; gap: 0; }
+  .t-step { display: flex; flex-direction: column; align-items: center; flex: 1; }
+  .t-circle { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 14px; background: #fff; }
+  .t-circle.done { background: #059669; border-color: #059669; color: #fff; }
+  .t-circle.active { background: #f59e0b; border-color: #f59e0b; color: #1e3a5f; }
+  .t-label { font-size: 11px; color: #6b7280; text-align: center; margin-top: 6px; line-height: 1.3; }
+  .t-label.done { color: #059669; font-weight: 600; }
+  .t-label.active { color: #d97706; font-weight: 600; }
+  .t-line { flex: 1; height: 2px; margin-top: 16px; }
+  .t-line.done { background: #059669; }
+  .t-line.pending { background: #e5e7eb; }
+
+  /* CANCEL BOX */
+  .cancel-box { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+  .cancel-box div p:first-child { font-size: 14px; font-weight: 700; color: #9a3412; margin-bottom: 3px; }
+  .cancel-box div p:last-child { font-size: 13px; color: #c2410c; }
+  .cancel-btn { background: transparent; border: 2px solid #ea580c; color: #ea580c; padding: 8px 18px; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+  /* CTA BUTTONS */
+  .cta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .cta-btn { padding: 13px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; }
+  .cta-primary { background: #1e3a5f; color: #fff; border: none; }
+  .cta-secondary { background: #fff; color: #1e3a5f; border: 2px solid #1e3a5f; }
+
+  footer { background: #1e3a5f; color: #9ca3af; text-align: center; padding: 14px; font-size: 12px; margin-top: auto; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Book<span>Haven</span></div>
+  <div class="nav-right">Hi, Sarah</div>
+</header>
+
+<div class="steps">
+  <div class="step done"><div class="step-circle">✓</div> Cart</div>
+  <div class="step-line"></div>
+  <div class="step done"><div class="step-circle">✓</div> Delivery &amp; Address</div>
+  <div class="step-line"></div>
+  <div class="step done"><div class="step-circle">✓</div> Payment</div>
+  <div class="step-line"></div>
+  <div class="step done"><div class="step-circle">✓</div> Confirmed!</div>
+</div>
+
+<main>
+  <div class="container">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="checkmark">✓</div>
+      <h1>Order Confirmed! 🎉</h1>
+      <p class="lead">Thank you, Sarah! Your books are on their way.<br/>We'll send you a tracking update once your order is dispatched.</p>
+      <div class="order-id">Order #BH-2025-084712</div><br/>
+      <p class="email-note">A confirmation email has been sent to <strong>sarah.johnson@example.com</strong></p>
+    </div>
+
+    <!-- ORDER META -->
+    <div class="details-grid">
+      <div class="detail-box">
+        <h3>Delivery Address</h3>
+        <p>Sarah Johnson<br/>42 Reading Lane<br/>London, EC1A 1BB<br/>United Kingdom</p>
+      </div>
+      <div class="detail-box">
+        <h3>Payment</h3>
+        <p>VISA ending in <strong>4242</strong><br/>Amount charged:<br/><span class="highlight">£60.45</span></p>
+      </div>
+      <div class="detail-box">
+        <h3>Estimated Delivery</h3>
+        <p class="highlight">Thu 17 – Fri 18 July 2025</p>
+        <p style="margin-top:4px;font-size:13px;color:#6b7280;">Standard Delivery</p>
+      </div>
+      <div class="detail-box">
+        <h3>Gift Points Earned</h3>
+        <p class="highlight">+60 points</p>
+        <p style="margin-top:4px;font-size:13px;color:#6b7280;">Total balance: 310 pts</p>
+      </div>
+    </div>
+
+    <!-- ITEMS -->
+    <div class="items-box">
+      <h3>Items Ordered</h3>
+      <div class="order-item">
+        <div class="item-thumb it1">📖</div>
+        <div class="item-details"><h4>The Name of the Wind</h4><p>Patrick Rothfuss · Paperback · Qty: 1</p></div>
+        <span class="item-price">£12.99</span>
+      </div>
+      <div class="order-item">
+        <div class="item-thumb it2">🌟</div>
+        <div class="item-details"><h4>The Way of Kings</h4><p>Brandon Sanderson · Hardcover · Qty: 2</p></div>
+        <span class="item-price">£33.98</span>
+      </div>
+      <div class="order-item">
+        <div class="item-thumb it3">✨</div>
+        <div class="item-details"><h4>The Night Circus</h4><p>Erin Morgenstern · Paperback · Qty: 1</p></div>
+        <span class="item-price">£13.49</span>
+      </div>
+      <div class="total-line"><span>Total Paid:</span><span>£60.45</span></div>
+    </div>
+
+    <!-- DELIVERY TRACKER -->
+    <div class="tracker-box">
+      <h3>📦 Delivery Tracker</h3>
+      <div class="tracker">
+        <div class="t-step">
+          <div class="t-circle done">✓</div>
+          <div class="t-label done">Order<br/>Placed</div>
+        </div>
+        <div class="t-line done"></div>
+        <div class="t-step">
+          <div class="t-circle done">✓</div>
+          <div class="t-label done">Payment<br/>Confirmed</div>
+        </div>
+        <div class="t-line done"></div>
+        <div class="t-step">
+          <div class="t-circle active">⏳</div>
+          <div class="t-label active">Processing<br/>Order</div>
+        </div>
+        <div class="t-line pending"></div>
+        <div class="t-step">
+          <div class="t-circle">🚚</div>
+          <div class="t-label">Dispatched</div>
+        </div>
+        <div class="t-line pending"></div>
+        <div class="t-step">
+          <div class="t-circle">🏠</div>
+          <div class="t-label">Delivered</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CANCEL WARNING -->
+    <div class="cancel-box">
+      <div>
+        <p>⏰ Cancel your order within 48 hours</p>
+        <p>You can cancel before Wed 16 Jul at 10:34 AM. After this, cancellations are not guaranteed.</p>
+      </div>
+      <button class="cancel-btn">Cancel Order</button>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-grid">
+      <button class="cta-btn cta-primary">Continue Shopping</button>
+      <button class="cta-btn cta-secondary">View Order History</button>
+    </div>
+
+  </div>
+</main>
+
+<footer>&copy; 2025 BookHaven. All rights reserved.</footer>
+</body>
+</html>

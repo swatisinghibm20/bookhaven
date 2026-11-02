@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BookHaven – Shopping Cart</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; background: #f3f4f6; min-height: 100vh; display: flex; flex-direction: column; }
+  header { background: #1e3a5f; color: #fff; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .logo { font-size: 20px; font-weight: 800; } .logo span { color: #f59e0b; }
+  .nav-links { display: flex; gap: 24px; font-size: 14px; }
+  .nav-links a { color: #cbd5e1; text-decoration: none; }
+  .nav-links a.active { color: #fff; font-weight: 600; }
+  .nav-right { display: flex; align-items: center; gap: 16px; font-size: 14px; }
+  .cart-btn { background: #f59e0b; color: #1e3a5f; border: none; padding: 7px 16px; border-radius: 20px; font-weight: 700; cursor: pointer; font-size: 13px; }
+
+  .breadcrumb { background: #fff; padding: 10px 32px; font-size: 12px; color: #6b7280; border-bottom: 1px solid #e5e7eb; }
+  .breadcrumb span { color: #1e3a5f; font-weight: 600; }
+
+  .page { max-width: 1100px; margin: 24px auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 340px; gap: 24px; width: 100%; }
+
+  /* CART ITEMS */
+  .cart-section h2 { font-size: 18px; font-weight: 700; color: #1e3a5f; margin-bottom: 16px; }
+  .cart-item { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; display: flex; gap: 16px; margin-bottom: 12px; }
+  .book-thumb { width: 70px; height: 90px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+  .bt1 { background: #dbeafe; }
+  .bt2 { background: #fce7f3; }
+  .bt3 { background: #d1fae5; }
+  .item-info { flex: 1; }
+  .item-info .tag { font-size: 11px; font-weight: 600; color: #7c5cd8; text-transform: uppercase; letter-spacing: 0.4px; }
+  .item-info h4 { font-size: 15px; font-weight: 700; color: #1f2328; margin: 3px 0; }
+  .item-info .author { font-size: 13px; color: #6b7280; margin-bottom: 4px; }
+  .item-info .format { font-size: 12px; color: #6b7280; background: #f3f4f6; padding: 2px 8px; border-radius: 20px; display: inline-block; margin-bottom: 6px; }
+  .item-info .delivery { font-size: 12px; color: #059669; }
+  .item-price { display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between; }
+  .item-price .price { font-size: 18px; font-weight: 700; color: #1e3a5f; }
+  .item-price .old-price { font-size: 12px; color: #9ca3af; text-decoration: line-through; }
+  .qty-control { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .qty-btn { width: 28px; height: 28px; border: 1px solid #d1d5db; border-radius: 5px; background: #fff; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .qty-num { font-size: 14px; font-weight: 600; min-width: 20px; text-align: center; }
+  .remove-btn { font-size: 12px; color: #ef4444; cursor: pointer; background: none; border: none; margin-top: 6px; }
+
+  /* RECOMMENDATIONS */
+  .rec-section { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-top: 20px; }
+  .rec-section h3 { font-size: 14px; font-weight: 700; color: #1e3a5f; margin-bottom: 4px; }
+  .rec-section p { font-size: 12px; color: #6b7280; margin-bottom: 12px; }
+  .rec-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .rec-card { border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; cursor: pointer; }
+  .rec-cover { height: 80px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .rc1 { background: #fef3c7; } .rc2 { background: #ede9fe; } .rc3 { background: #cffafe; }
+  .rec-card p { font-size: 11px; font-weight: 600; color: #1f2328; padding: 6px 8px 2px; line-height: 1.3; }
+  .rec-card .rec-price { font-size: 12px; font-weight: 700; color: #1e3a5f; padding: 0 8px 6px; }
+
+  /* ORDER HISTORY */
+  .history-section { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-top: 12px; }
+  .history-section h3 { font-size: 14px; font-weight: 700; color: #1e3a5f; margin-bottom: 10px; }
+  .history-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
+  .history-item:last-child { border-bottom: none; }
+  .history-item p { font-size: 13px; color: #374151; }
+  .history-item span { font-size: 12px; color: #6b7280; }
+  .buy-again { font-size: 12px; color: #1e3a5f; font-weight: 600; cursor: pointer; background: none; border: 1px solid #1e3a5f; padding: 3px 10px; border-radius: 20px; }
+
+  /* SIDEBAR */
+  .summary { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; height: fit-content; position: sticky; top: 20px; }
+  .summary h3 { font-size: 16px; font-weight: 700; color: #1e3a5f; margin-bottom: 16px; }
+  .sum-row { display: flex; justify-content: space-between; font-size: 14px; color: #374151; margin-bottom: 10px; }
+  .sum-row.total { font-weight: 700; font-size: 16px; color: #1f2328; border-top: 1px solid #e5e7eb; padding-top: 12px; margin-top: 4px; }
+  .promo-input { display: flex; gap: 8px; margin: 14px 0; }
+  .promo-input input { flex: 1; padding: 8px 10px; border: 1px solid #d1d5db; border-radius: 5px; font-size: 13px; background: #f9fafb; }
+  .promo-input button { padding: 8px 12px; border: none; background: #f59e0b; color: #1e3a5f; border-radius: 5px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .gift-points { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px 12px; font-size: 13px; color: #065f46; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+  .gift-points button { font-size: 12px; font-weight: 600; color: #059669; background: none; border: none; cursor: pointer; }
+  .checkout-btn { width: 100%; padding: 13px; background: #f59e0b; color: #1e3a5f; border: none; border-radius: 7px; font-size: 16px; font-weight: 700; cursor: pointer; }
+  .secure-note { text-align: center; font-size: 11px; color: #9ca3af; margin-top: 8px; }
+
+  footer { background: #1e3a5f; color: #9ca3af; text-align: center; padding: 14px; font-size: 12px; margin-top: 32px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Book<span>Haven</span></div>
+  <nav class="nav-links">
+    <a href="#">Home</a>
+    <a href="#">Catalogue</a>
+    <a href="#">Deals</a>
+    <a href="#">Order History</a>
+  </nav>
+  <div class="nav-right">
+    <span>Hi, Sarah</span>
+    <button class="cart-btn">🛒 Cart (3)</button>
+  </div>
+</header>
+
+<div class="breadcrumb">Home › Catalogue › <span>Shopping Cart</span></div>
+
+<div class="page">
+  <div class="cart-section">
+    <h2>Your Cart (3 items)</h2>
+
+    <div class="cart-item">
+      <div class="book-thumb bt1">📖</div>
+      <div class="item-info">
+        <div class="tag">Fiction</div>
+        <h4>The Name of the Wind</h4>
+        <div class="author">Patrick Rothfuss · Penguin Books</div>
+        <div class="format">Paperback</div>
+        <div class="delivery">📦 Est. delivery: Thu 17 Jul</div>
+      </div>
+      <div class="item-price">
+        <div>
+          <div class="price">£12.99</div>
+          <div class="old-price">£15.99</div>
+        </div>
+        <div>
+          <div class="qty-control">
+            <button class="qty-btn">−</button>
+            <span class="qty-num">1</span>
+            <button class="qty-btn">+</button>
+          </div>
+          <button class="remove-btn">Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-item">
+      <div class="book-thumb bt2">🌟</div>
+      <div class="item-info">
+        <div class="tag">Epic Fantasy</div>
+        <h4>The Way of Kings</h4>
+        <div class="author">Brandon Sanderson · Macmillan</div>
+        <div class="format">Hardcover</div>
+        <div class="delivery">📦 Est. delivery: Fri 18 Jul</div>
+      </div>
+      <div class="item-price">
+        <div>
+          <div class="price">£16.99</div>
+        </div>
+        <div>
+          <div class="qty-control">
+            <button class="qty-btn">−</button>
+            <span class="qty-num">2</span>
+            <button class="qty-btn">+</button>
+          </div>
+          <button class="remove-btn">Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cart-item">
+      <div class="book-thumb bt3">✨</div>
+      <div class="item-info">
+        <div class="tag">Urban Fantasy</div>
+        <h4>The Night Circus</h4>
+        <div class="author">Erin Morgenstern · Bloomsbury</div>
+        <div class="format">Paperback</div>
+        <div class="delivery">📦 Est. delivery: Thu 17 Jul</div>
+      </div>
+      <div class="item-price">
+        <div>
+          <div class="price">£13.49</div>
+        </div>
+        <div>
+          <div class="qty-control">
+            <button class="qty-btn">−</button>
+            <span class="qty-num">1</span>
+            <button class="qty-btn">+</button>
+          </div>
+          <button class="remove-btn">Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI RECOMMENDATIONS -->
+    <div class="rec-section">
+      <h3>🤖 Recommended for You</h3>
+      <p>Based on your order history and browsing</p>
+      <div class="rec-grid">
+        <div class="rec-card">
+          <div class="rec-cover rc1">🏰</div>
+          <p>The Blade Itself</p>
+          <div class="rec-price">£11.99</div>
+        </div>
+        <div class="rec-card">
+          <div class="rec-cover rc2">🌙</div>
+          <p>Mistborn: The Final Empire</p>
+          <div class="rec-price">£12.49</div>
+        </div>
+        <div class="rec-card">
+          <div class="rec-cover rc3">🔮</div>
+          <p>A Wizard of Earthsea</p>
+          <div class="rec-price">£9.99</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDER HISTORY -->
+    <div class="history-section">
+      <h3>🕐 Order History – Buy Again</h3>
+      <div class="history-item">
+        <div><p>Dune – Frank Herbert</p><span>Ordered 12 Jun 2025</span></div>
+        <button class="buy-again">Buy Again</button>
+      </div>
+      <div class="history-item">
+        <div><p>Neuromancer – William Gibson</p><span>Ordered 3 May 2025</span></div>
+        <button class="buy-again">Buy Again</button>
+      </div>
+      <div class="history-item">
+        <div><p>The Hobbit – J.R.R. Tolkien</p><span>Ordered 14 Apr 2025</span></div>
+        <button class="buy-again">Buy Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDER SUMMARY -->
+  <div class="summary">
+    <h3>Order Summary</h3>
+    <div class="sum-row"><span>Subtotal (5 items)</span><span>£73.45</span></div>
+    <div class="sum-row"><span>Discount</span><span style="color:#059669;">−£3.00</span></div>
+    <div class="sum-row"><span>Delivery</span><span>£2.99</span></div>
+    <div class="sum-row total"><span>Total</span><span>£73.44</span></div>
+
+    <div class="promo-input">
+      <input type="text" placeholder="Promo / gift code" />
+      <button>Apply</button>
+    </div>
+
+    <div class="gift-points">
+      <span>🎁 You have <strong>250 gift points</strong></span>
+      <button>Redeem</button>
+    </div>
+
+    <button class="checkout-btn">Proceed to Checkout →</button>
+    <div class="secure-note">🔒 Secure checkout · SSL encrypted</div>
+  </div>
+</div>
+
+<footer>&copy; 2025 BookHaven. All rights reserved.</footer>
+</body>
+</html>

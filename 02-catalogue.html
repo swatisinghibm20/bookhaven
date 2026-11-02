@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BookHaven – Catalogue</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; background: #f3f4f6; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* NAV */
+  header { background: #1e3a5f; color: #fff; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .logo { font-size: 20px; font-weight: 800; } .logo span { color: #f59e0b; }
+  .nav-links { display: flex; gap: 24px; font-size: 14px; }
+  .nav-links a { color: #cbd5e1; text-decoration: none; }
+  .nav-links a.active { color: #fff; font-weight: 600; border-bottom: 2px solid #f59e0b; padding-bottom: 2px; }
+  .nav-right { display: flex; align-items: center; gap: 16px; font-size: 14px; }
+  .cart-btn { background: #f59e0b; color: #1e3a5f; border: none; padding: 7px 16px; border-radius: 20px; font-weight: 700; cursor: pointer; font-size: 13px; }
+
+  /* SEARCH BAR */
+  .search-bar { background: #fff; padding: 14px 32px; display: flex; gap: 12px; border-bottom: 1px solid #e5e7eb; }
+  .search-bar input { flex: 1; padding: 9px 14px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: #f9fafb; }
+  .search-bar select { padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; background: #f9fafb; }
+  .search-bar button { padding: 9px 22px; background: #1e3a5f; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+
+  /* CATEGORIES STRIP */
+  .categories { background: #fff; padding: 10px 32px; display: flex; gap: 10px; overflow-x: auto; border-bottom: 1px solid #e5e7eb; }
+  .cat-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid #d1d5db; font-size: 13px; cursor: pointer; white-space: nowrap; background: #f9fafb; color: #374151; }
+  .cat-btn.active { background: #1e3a5f; color: #fff; border-color: #1e3a5f; }
+
+  /* LAYOUT */
+  .layout { display: flex; flex: 1; }
+
+  /* SIDEBAR */
+  aside { width: 220px; min-width: 220px; background: #fff; padding: 20px 16px; border-right: 1px solid #e5e7eb; }
+  aside h3 { font-size: 13px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; margin-top: 18px; }
+  aside h3:first-child { margin-top: 0; }
+  .filter-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #374151; margin-bottom: 7px; cursor: pointer; }
+  .filter-item input { width: auto; }
+  .price-range { display: flex; gap: 6px; margin-top: 6px; }
+  .price-range input { width: 80px; padding: 5px 8px; border: 1px solid #d1d5db; border-radius: 5px; font-size: 12px; background: #f9fafb; }
+
+  /* MAIN CONTENT */
+  .main-content { flex: 1; padding: 20px 24px; }
+  .content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .content-header h2 { font-size: 17px; font-weight: 700; color: #1e3a5f; }
+  .content-header .sort { font-size: 13px; color: #6b7280; display: flex; align-items: center; gap: 8px; }
+  .content-header select { padding: 5px 10px; border: 1px solid #d1d5db; border-radius: 5px; font-size: 13px; background: #f9fafb; }
+
+  /* PRODUCT GRID */
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .product-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; cursor: pointer; }
+  .product-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .book-cover { height: 160px; display: flex; align-items: center; justify-content: center; font-size: 38px; }
+  .book-cover.c1 { background: #dbeafe; }
+  .book-cover.c2 { background: #fce7f3; }
+  .book-cover.c3 { background: #d1fae5; }
+  .book-cover.c4 { background: #fef3c7; }
+  .book-cover.c5 { background: #ede9fe; }
+  .book-cover.c6 { background: #fee2e2; }
+  .book-cover.c7 { background: #cffafe; }
+  .book-cover.c8 { background: #f0fdf4; }
+  .card-body { padding: 12px; }
+  .card-body .tag { font-size: 10px; font-weight: 600; color: #7c5cd8; text-transform: uppercase; letter-spacing: 0.4px; }
+  .card-body h4 { font-size: 13px; font-weight: 700; color: #1f2328; margin: 3px 0; line-height: 1.3; }
+  .card-body .author { font-size: 12px; color: #6b7280; margin-bottom: 6px; }
+  .card-body .stars { color: #f59e0b; font-size: 12px; }
+  .card-body .delivery { font-size: 11px; color: #059669; margin-top: 4px; }
+  .card-footer { padding: 10px 12px; border-top: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center; }
+  .price { font-size: 16px; font-weight: 700; color: #1e3a5f; }
+  .add-btn { background: #f59e0b; color: #1e3a5f; border: none; padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+  /* PAGINATION */
+  .pagination { display: flex; justify-content: center; gap: 6px; margin-top: 24px; }
+  .page-btn { padding: 6px 12px; border: 1px solid #d1d5db; border-radius: 5px; font-size: 13px; cursor: pointer; background: #fff; }
+  .page-btn.active { background: #1e3a5f; color: #fff; border-color: #1e3a5f; }
+
+  footer { background: #1e3a5f; color: #9ca3af; padding: 20px 32px; margin-top: auto; }
+  .footer-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 16px; }
+  .footer-col h4 { color: #fff; font-size: 13px; margin-bottom: 8px; }
+  .footer-col a { display: block; font-size: 12px; color: #9ca3af; text-decoration: none; margin-bottom: 4px; }
+  .footer-bottom { border-top: 1px solid #2d4f78; padding-top: 12px; font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Book<span>Haven</span></div>
+  <nav class="nav-links">
+    <a href="#">Home</a>
+    <a href="#" class="active">Catalogue</a>
+    <a href="#">Deals</a>
+    <a href="#">Order History</a>
+  </nav>
+  <div class="nav-right">
+    <span>Hi, Sarah</span>
+    <button class="cart-btn">🛒 Cart (2)</button>
+  </div>
+</header>
+
+<div class="search-bar">
+  <input type="text" placeholder="Search books, authors, ISBN…" value="Fantasy novels" />
+  <select><option>All Categories</option><option>Fiction</option><option>Non-Fiction</option><option>Science</option></select>
+  <button>Search</button>
+</div>
+
+<div class="categories">
+  <button class="cat-btn active">All</button>
+  <button class="cat-btn">Fiction</button>
+  <button class="cat-btn">Non-Fiction</button>
+  <button class="cat-btn">Science &amp; Tech</button>
+  <button class="cat-btn">Children</button>
+  <button class="cat-btn">Biography</button>
+  <button class="cat-btn">Self-Help</button>
+  <button class="cat-btn">History</button>
+  <button class="cat-btn">Fantasy</button>
+</div>
+
+<div class="layout">
+  <aside>
+    <h3>Brand / Publisher</h3>
+    <label class="filter-item"><input type="checkbox" checked /> Penguin Books</label>
+    <label class="filter-item"><input type="checkbox" /> HarperCollins</label>
+    <label class="filter-item"><input type="checkbox" /> Macmillan</label>
+    <label class="filter-item"><input type="checkbox" /> Bloomsbury</label>
+    <label class="filter-item"><input type="checkbox" /> Random House</label>
+
+    <h3>Price Range</h3>
+    <div class="price-range">
+      <input type="text" placeholder="£5" />
+      <span style="line-height:28px;font-size:12px;">–</span>
+      <input type="text" placeholder="£50" />
+    </div>
+
+    <h3>Format</h3>
+    <label class="filter-item"><input type="checkbox" checked /> Hardcover</label>
+    <label class="filter-item"><input type="checkbox" checked /> Paperback</label>
+    <label class="filter-item"><input type="checkbox" /> eBook</label>
+    <label class="filter-item"><input type="checkbox" /> Audiobook</label>
+
+    <h3>Rating</h3>
+    <label class="filter-item"><input type="checkbox" /> ⭐⭐⭐⭐⭐ 5 stars</label>
+    <label class="filter-item"><input type="checkbox" checked /> ⭐⭐⭐⭐ 4+ stars</label>
+    <label class="filter-item"><input type="checkbox" /> ⭐⭐⭐ 3+ stars</label>
+  </aside>
+
+  <div class="main-content">
+    <div class="content-header">
+      <h2>Showing 48 results for "Fantasy novels"</h2>
+      <div class="sort">Sort by: <select><option>Relevance</option><option>Price: Low–High</option><option>Bestselling</option><option>Newest</option></select></div>
+    </div>
+
+    <div class="grid">
+      <div class="product-card">
+        <div class="book-cover c1">📖</div>
+        <div class="card-body">
+          <div class="tag">Fiction</div>
+          <h4>The Name of the Wind</h4>
+          <div class="author">Patrick Rothfuss</div>
+          <div class="stars">★★★★★</div>
+          <div class="delivery">📦 Est. delivery: 2–3 days</div>
+        </div>
+        <div class="card-footer"><span class="price">£12.99</span><button class="add-btn">+ Basket</button></div>
+      </div>
+      <div class="product-card">
+        <div class="book-cover c2">📚</div>
+        <div class="card-body">
+          <div class="tag">Fantasy</div>
+          <h4>The Wise Man's Fear</h4>
+          <div class="author">Patrick Rothfuss</div>
+          <div class="stars">★★★★☆</div>
+          <div class="delivery">📦 Est. delivery: 2–3 days</div>
+        </div>
+        <div class="card-footer"><span class="price">£14.99</span><button class="add-btn">+ Basket</button></div>
+      </div>
+      <div class="product-card">
+        <div class="book-cover c3">🔮</div>
+        <div class="card-body">
+          <div class="tag">Fantasy</div>
+          <h4>A Wizard of Earthsea</h4>
+          <div class="author">Ursula K. Le Guin</div>
+          <div class="stars">★★★★★</div>
+          <div class="delivery">📦 Est. delivery: 1–2 days</div>
+        </div>
+        <div class="card-footer"><span class="price">£9.99</span><button class="add-btn">+ Basket</button></div>
+      </div>
+      <div class="product-card">
+        <div class="book-cover c4">🌟</div>
+        <div class="card-body">
+          <div class="tag">Epic Fantasy</div>
+          <h4>The Way of Kings</h4>
+          <div class="author">Brandon Sanderson</div>
+          <div class="stars">★★★★★</div>
+          <div class="delivery">📦 Est. delivery: 3–4 days</div>
+        </div>
+        <div class="card-footer"><span class="price">£16.99</span><button class="add-btn">+ Basket</button></div>
+      </div>
+      <div class="product-card">
+        <div class="book-cover c5">🏰</div>
+        <div class="card-body">
+          <div class="tag">Dark Fantasy</div>
+          <h4>The Blade Itself</h4>
+          <div class="author">Joe Abercrombie</div>
+          <div class="stars">★★★★☆</div>
+          <div class="delivery">📦 Est. delivery: 2–3 days</div>
+        </div>
+        <div class="card-footer"><span class="price">£11.99</span><button class="add-btn">+ Basket</button></div>
+      </div>
+      <div class="product-card">
+        <div class="book-cover c6">🐉</div>
+        <div class="card-body">
+          <div class="tag">Fantasy</div>
+          <h4>Elantris</h4>
+          <div class="author">Brandon Sanderson</div>
+          <div class="stars">★★★★☆</div>
+          <div class="delivery">📦 Est. delivery: 2–3 days</div>
+        </div>
+        <div class="card-footer"><span class="price">£10.99</span><button class="add-btn">+ Basket</button></div>
+      </div>
+      <div class="product-card">
+        <div class="book-cover c7">✨</div>
+        <div class="card-body">
+          <div class="tag">Urban Fantasy</div>
+          <h4>The Night Circus</h4>
+          <div class="author">Erin Morgenstern</div>
+          <div class="stars">★★★★★</div>
+          <div class="delivery">📦 Est. delivery: 1–2 days</div>
+        </div>
+        <div class="card-footer"><span class="price">£13.49</span><button class="add-btn">+ Basket</button></div>
+      </div>
+      <div class="product-card">
+        <div class="book-cover c8">🌙</div>
+        <div class="card-body">
+          <div class="tag">Fantasy</div>
+          <h4>Mistborn: The Final Empire</h4>
+          <div class="author">Brandon Sanderson</div>
+          <div class="stars">★★★★★</div>
+          <div class="delivery">📦 Est. delivery: 2–3 days</div>
+        </div>
+        <div class="card-footer"><span class="price">£12.49</span><button class="add-btn">+ Basket</button></div>
+      </div>
+    </div>
+
+    <div class="pagination">
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">…</button>
+      <button class="page-btn">6</button>
+      <button class="page-btn">›</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col"><h4>BookHaven</h4><a href="#">About Us</a><a href="#">Careers</a><a href="#">Press</a></div>
+    <div class="footer-col"><h4>Help</h4><a href="#">FAQ</a><a href="#">Returns</a><a href="#">Contact Us</a></div>
+    <div class="footer-col"><h4>Catalogue</h4><a href="#">Fiction</a><a href="#">Non-Fiction</a><a href="#">Children</a></div>
+    <div class="footer-col"><h4>Connect</h4><a href="#">Twitter</a><a href="#">Instagram</a><a href="#">Newsletter</a></div>
+  </div>
+  <div class="footer-bottom">&copy; 2025 BookHaven. All rights reserved.</div>
+</footer>
+
+</body>
+</html>

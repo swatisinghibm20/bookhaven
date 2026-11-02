@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BookHaven – Processing Payment</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; background: #f3f4f6; min-height: 100vh; display: flex; flex-direction: column; }
+  header { background: #1e3a5f; color: #fff; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .logo { font-size: 20px; font-weight: 800; } .logo span { color: #f59e0b; }
+  .nav-right { font-size: 14px; color: #cbd5e1; }
+
+  /* STEPS */
+  .steps { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 14px 32px; display: flex; align-items: center; justify-content: center; gap: 0; }
+  .step { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #9ca3af; }
+  .step.done { color: #059669; }
+  .step.active { color: #1e3a5f; font-weight: 700; }
+  .step-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .step.done .step-circle { background: #059669; border-color: #059669; color: #fff; }
+  .step.active .step-circle { background: #1e3a5f; border-color: #1e3a5f; color: #fff; }
+  .step-line { width: 60px; height: 2px; background: #e5e7eb; margin: 0 4px; }
+  .step-line.done { background: #059669; }
+
+  main { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 32px 16px; }
+  .container { max-width: 900px; width: 100%; display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
+
+  /* PAYMENT CARD */
+  .pay-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 28px 28px; }
+  .pay-card h2 { font-size: 18px; font-weight: 700; color: #1e3a5f; margin-bottom: 4px; }
+  .pay-card .sub { font-size: 13px; color: #6b7280; margin-bottom: 22px; }
+
+  /* VISUAL CARD */
+  .card-visual { background: linear-gradient(135deg, #1e3a5f 0%, #2d5a9e 100%); border-radius: 12px; padding: 20px 22px; color: #fff; margin-bottom: 22px; min-height: 140px; position: relative; }
+  .card-visual .chip { width: 34px; height: 26px; background: #f59e0b; border-radius: 4px; margin-bottom: 14px; }
+  .card-visual .card-number { font-size: 17px; letter-spacing: 3px; font-family: monospace; margin-bottom: 14px; }
+  .card-visual .card-meta { display: flex; justify-content: space-between; font-size: 12px; color: #bfdbfe; }
+  .card-visual .card-name { font-size: 13px; font-weight: 600; letter-spacing: 1px; }
+  .card-visual .network { position: absolute; top: 18px; right: 22px; font-size: 22px; opacity: 0.9; }
+
+  /* FORM */
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 12px; font-weight: 600; color: #374151; margin-bottom: 5px; }
+  .form-group input { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; color: #1f2328; background: #f9fafb; }
+  .form-group input:focus { outline: 2px solid #3b82f6; border-color: transparent; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .secure-badges { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+  .badge { display: flex; align-items: center; gap: 6px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 20px; padding: 4px 12px; font-size: 12px; color: #065f46; }
+
+  .pay-btn { width: 100%; padding: 14px; background: #f59e0b; color: #1e3a5f; border: none; border-radius: 8px; font-size: 17px; font-weight: 700; cursor: pointer; margin-bottom: 8px; }
+  .cancel-btn { width: 100%; padding: 10px; background: transparent; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; color: #6b7280; cursor: pointer; }
+
+  .pay-note { font-size: 11px; color: #9ca3af; text-align: center; margin-top: 10px; line-height: 1.5; }
+
+  /* SIDEBAR */
+  .sidebar { }
+  .order-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .order-box h3 { font-size: 15px; font-weight: 700; color: #1e3a5f; margin-bottom: 14px; }
+  .order-item { display: flex; justify-content: space-between; font-size: 13px; color: #374151; margin-bottom: 8px; }
+  .order-item span:last-child { font-weight: 600; }
+  .divider { border: none; border-top: 1px solid #e5e7eb; margin: 12px 0; }
+  .total-row { display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; color: #1f2328; }
+  .delivery-row { background: #eff6ff; border-radius: 6px; padding: 10px 12px; font-size: 13px; color: #1e3a5f; margin-top: 10px; }
+  .delivery-row strong { display: block; }
+
+  .security-box { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px 20px; }
+  .security-box h4 { font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 10px; }
+  .sec-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-size: 12px; color: #6b7280; }
+  .sec-item span:first-child { flex-shrink: 0; }
+
+  footer { background: #1e3a5f; color: #9ca3af; text-align: center; padding: 14px; font-size: 12px; margin-top: auto; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Book<span>Haven</span></div>
+  <div class="nav-right">🔒 Secure Checkout</div>
+</header>
+
+<div class="steps">
+  <div class="step done"><div class="step-circle">✓</div> Cart</div>
+  <div class="step-line done"></div>
+  <div class="step done"><div class="step-circle">✓</div> Delivery &amp; Address</div>
+  <div class="step-line done"></div>
+  <div class="step active"><div class="step-circle">3</div> Payment</div>
+  <div class="step-line"></div>
+  <div class="step"><div class="step-circle">4</div> Confirmation</div>
+</div>
+
+<main>
+  <div class="container">
+    <div class="pay-card">
+      <h2>Complete Your Payment</h2>
+      <p class="sub">Your details are encrypted and secure.</p>
+
+      <!-- VISUAL CARD MOCKUP -->
+      <div class="card-visual">
+        <div class="chip"></div>
+        <div class="card-number">•••• &nbsp;•••• &nbsp;•••• &nbsp;4242</div>
+        <div class="card-meta">
+          <div>
+            <div style="font-size:10px;color:#bfdbfe;margin-bottom:2px;">VALID THRU</div>
+            <div class="card-name">12 / 27</div>
+          </div>
+          <div>
+            <div class="card-name">SARAH JOHNSON</div>
+          </div>
+        </div>
+        <div class="network">VISA</div>
+      </div>
+
+      <div class="secure-badges">
+        <div class="badge">🔒 SSL Secured</div>
+        <div class="badge">✅ PCI DSS Compliant</div>
+        <div class="badge">🛡️ Fraud Protection</div>
+      </div>
+
+      <div class="form-group">
+        <label>Cardholder Name</label>
+        <input type="text" value="Sarah Johnson" />
+      </div>
+      <div class="form-group">
+        <label>Card Number</label>
+        <input type="text" value="•••• •••• •••• 4242" />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Expiry Date</label>
+          <input type="text" value="12 / 27" />
+        </div>
+        <div class="form-group">
+          <label>CVV / CVC</label>
+          <input type="text" placeholder="•••" />
+        </div>
+      </div>
+
+      <button class="pay-btn">🔒 Pay £60.45</button>
+      <button class="cancel-btn">← Back to Delivery</button>
+      <div class="pay-note">By clicking "Pay" you agree to BookHaven's Terms of Service.<br/>You will not be charged until your order is confirmed.</div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="order-box">
+        <h3>Order Summary</h3>
+        <div class="order-item"><span>The Name of the Wind × 1</span><span>£12.99</span></div>
+        <div class="order-item"><span>The Way of Kings × 2</span><span>£33.98</span></div>
+        <div class="order-item"><span>The Night Circus × 1</span><span>£13.49</span></div>
+        <hr class="divider" />
+        <div class="order-item"><span>Subtotal</span><span>£60.46</span></div>
+        <div class="order-item"><span>Standard Delivery</span><span>£2.99</span></div>
+        <div class="order-item"><span>Discount</span><span style="color:#059669;">−£3.00</span></div>
+        <hr class="divider" />
+        <div class="total-row"><span>Total</span><span>£60.45</span></div>
+        <div class="delivery-row">
+          <strong>📦 Estimated Delivery</strong>
+          Thu 17 Jul – Fri 18 Jul · Standard
+        </div>
+      </div>
+
+      <div class="security-box">
+        <h4>🛡️ Your Security Guarantee</h4>
+        <div class="sec-item"><span>🔒</span><span>256-bit SSL encryption on all transactions</span></div>
+        <div class="sec-item"><span>💳</span><span>We never store your full card number</span></div>
+        <div class="sec-item"><span>↩️</span><span>Cancel within 48 hrs for a full refund</span></div>
+        <div class="sec-item"><span>✅</span><span>Verified by Visa / Mastercard SecureCode</span></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>&copy; 2025 BookHaven. All rights reserved.</footer>
+</body>
+</html>

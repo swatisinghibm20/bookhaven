@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BookHaven – Delivery & Payment</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; background: #f3f4f6; min-height: 100vh; display: flex; flex-direction: column; }
+  header { background: #1e3a5f; color: #fff; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+  .logo { font-size: 20px; font-weight: 800; } .logo span { color: #f59e0b; }
+  .nav-right { display: flex; align-items: center; gap: 16px; font-size: 14px; color: #cbd5e1; }
+
+  /* CHECKOUT STEPS */
+  .steps { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 14px 32px; display: flex; align-items: center; justify-content: center; gap: 0; }
+  .step { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #9ca3af; }
+  .step.done { color: #059669; }
+  .step.active { color: #1e3a5f; font-weight: 700; }
+  .step-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #d1d5db; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+  .step.done .step-circle { background: #059669; border-color: #059669; color: #fff; }
+  .step.active .step-circle { background: #1e3a5f; border-color: #1e3a5f; color: #fff; }
+  .step-line { width: 60px; height: 2px; background: #e5e7eb; margin: 0 4px; }
+  .step-line.done { background: #059669; }
+
+  .page { max-width: 1000px; margin: 24px auto; padding: 0 24px; display: grid; grid-template-columns: 1fr 320px; gap: 24px; width: 100%; }
+
+  /* FORM SECTIONS */
+  .form-section { }
+  .section-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .section-card h3 { font-size: 15px; font-weight: 700; color: #1e3a5f; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #f3f4f6; }
+
+  /* ADDRESS */
+  .address-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-weight: 600; color: #374151; }
+  input, select { padding: 9px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; color: #1f2328; background: #f9fafb; }
+  input:focus, select:focus { outline: 2px solid #3b82f6; border-color: transparent; }
+
+  .saved-addresses { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .addr-card { border: 2px solid #e5e7eb; border-radius: 7px; padding: 12px; cursor: pointer; position: relative; }
+  .addr-card.selected { border-color: #1e3a5f; background: #eff6ff; }
+  .addr-card h4 { font-size: 13px; font-weight: 700; color: #1f2328; margin-bottom: 4px; }
+  .addr-card p { font-size: 12px; color: #6b7280; line-height: 1.5; }
+  .addr-badge { position: absolute; top: 8px; right: 8px; font-size: 10px; background: #1e3a5f; color: #fff; padding: 2px 7px; border-radius: 20px; }
+  .add-addr { font-size: 13px; color: #3b82f6; cursor: pointer; border: none; background: none; font-weight: 600; }
+
+  /* DELIVERY OPTIONS */
+  .delivery-options { display: flex; flex-direction: column; gap: 10px; }
+  .del-option { border: 2px solid #e5e7eb; border-radius: 7px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .del-option.selected { border-color: #1e3a5f; background: #eff6ff; }
+  .del-option input { width: auto; }
+  .del-info { flex: 1; }
+  .del-info strong { font-size: 14px; color: #1f2328; }
+  .del-info p { font-size: 12px; color: #6b7280; margin-top: 2px; }
+  .del-price { font-size: 15px; font-weight: 700; color: #1e3a5f; }
+
+  /* PAYMENT METHODS */
+  .payment-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .pay-method { border: 2px solid #e5e7eb; border-radius: 7px; padding: 12px; text-align: center; cursor: pointer; }
+  .pay-method.selected { border-color: #f59e0b; background: #fffbeb; }
+  .pay-method .icon { font-size: 24px; display: block; margin-bottom: 4px; }
+  .pay-method p { font-size: 12px; font-weight: 600; color: #374151; }
+
+  /* GIFT POINTS */
+  .gift-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 7px; padding: 12px 14px; display: flex; justify-content: space-between; align-items: center; }
+  .gift-box p { font-size: 13px; color: #065f46; }
+  .gift-box .pts { font-size: 16px; font-weight: 700; color: #059669; }
+  .gift-box button { background: #059669; color: #fff; border: none; padding: 6px 14px; border-radius: 5px; font-size: 13px; font-weight: 600; cursor: pointer; }
+
+  /* ORDER SUMMARY SIDEBAR */
+  .summary { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; height: fit-content; position: sticky; top: 20px; }
+  .summary h3 { font-size: 16px; font-weight: 700; color: #1e3a5f; margin-bottom: 14px; }
+  .mini-item { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+  .mini-thumb { width: 40px; height: 52px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .mt1 { background: #dbeafe; } .mt2 { background: #fce7f3; } .mt3 { background: #d1fae5; }
+  .mini-title { font-size: 13px; font-weight: 600; color: #1f2328; line-height: 1.3; }
+  .mini-qty { font-size: 12px; color: #6b7280; }
+  .mini-price { font-size: 13px; font-weight: 700; color: #1e3a5f; margin-left: auto; white-space: nowrap; }
+  .sum-divider { border: none; border-top: 1px solid #e5e7eb; margin: 12px 0; }
+  .sum-row { display: flex; justify-content: space-between; font-size: 14px; color: #374151; margin-bottom: 8px; }
+  .sum-row.total { font-weight: 700; font-size: 16px; color: #1f2328; }
+  .place-order-btn { width: 100%; padding: 13px; background: #f59e0b; color: #1e3a5f; border: none; border-radius: 7px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 14px; }
+  .secure-note { text-align: center; font-size: 11px; color: #9ca3af; margin-top: 8px; }
+
+  footer { background: #1e3a5f; color: #9ca3af; text-align: center; padding: 14px; font-size: 12px; margin-top: 32px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Book<span>Haven</span></div>
+  <div class="nav-right">Hi, Sarah &nbsp;|&nbsp; 🔒 Secure Checkout</div>
+</header>
+
+<!-- STEPS -->
+<div class="steps">
+  <div class="step done"><div class="step-circle">✓</div> Cart</div>
+  <div class="step-line done"></div>
+  <div class="step active"><div class="step-circle">2</div> Delivery &amp; Payment</div>
+  <div class="step-line"></div>
+  <div class="step"><div class="step-circle">3</div> Confirmation</div>
+</div>
+
+<div class="page">
+  <div class="form-section">
+
+    <!-- DELIVERY ADDRESS -->
+    <div class="section-card">
+      <h3>📍 Delivery Address</h3>
+      <div class="saved-addresses">
+        <div class="addr-card selected">
+          <div class="addr-badge">Default</div>
+          <h4>Sarah Johnson</h4>
+          <p>42 Reading Lane<br/>London, EC1A 1BB<br/>United Kingdom</p>
+        </div>
+        <div class="addr-card">
+          <h4>Work Address</h4>
+          <p>1 Canary Wharf<br/>London, E14 5AB<br/>United Kingdom</p>
+        </div>
+      </div>
+      <button class="add-addr">+ Add a new address</button>
+    </div>
+
+    <!-- DELIVERY OPTIONS -->
+    <div class="section-card">
+      <h3>🚚 Delivery Options</h3>
+      <div class="delivery-options">
+        <div class="del-option selected">
+          <input type="radio" name="delivery" checked />
+          <div class="del-info">
+            <strong>Standard Delivery</strong>
+            <p>Thu 17 Jul – Fri 18 Jul</p>
+          </div>
+          <span class="del-price">£2.99</span>
+        </div>
+        <div class="del-option">
+          <input type="radio" name="delivery" />
+          <div class="del-info">
+            <strong>Express Delivery</strong>
+            <p>Wed 16 Jul (tomorrow)</p>
+          </div>
+          <span class="del-price">£5.99</span>
+        </div>
+        <div class="del-option">
+          <input type="radio" name="delivery" />
+          <div class="del-info">
+            <strong>Next Day (before noon)</strong>
+            <p>Wed 16 Jul by 12:00</p>
+          </div>
+          <span class="del-price">£9.99</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAYMENT METHOD -->
+    <div class="section-card">
+      <h3>💳 Payment Method</h3>
+      <div class="payment-methods">
+        <div class="pay-method selected">
+          <span class="icon">💳</span>
+          <p>Credit / Debit Card</p>
+        </div>
+        <div class="pay-method">
+          <span class="icon">🅿️</span>
+          <p>PayPal</p>
+        </div>
+        <div class="pay-method">
+          <span class="icon">📱</span>
+          <p>Apple / Google Pay</p>
+        </div>
+      </div>
+
+      <div class="address-grid">
+        <div class="form-group full">
+          <label>Cardholder Name</label>
+          <input type="text" placeholder="Sarah Johnson" />
+        </div>
+        <div class="form-group full">
+          <label>Card Number</label>
+          <input type="text" placeholder="•••• •••• •••• ••••" />
+        </div>
+        <div class="form-group">
+          <label>Expiry Date</label>
+          <input type="text" placeholder="MM / YY" />
+        </div>
+        <div class="form-group">
+          <label>CVV</label>
+          <input type="text" placeholder="•••" />
+        </div>
+      </div>
+    </div>
+
+    <!-- GIFT POINTS -->
+    <div class="section-card">
+      <h3>🎁 Gift Points</h3>
+      <div class="gift-box">
+        <div><p>Available gift points</p><span class="pts">250 pts = £2.50</span></div>
+        <button>Redeem Points</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ORDER SUMMARY -->
+  <div class="summary">
+    <h3>Order Summary</h3>
+    <div class="mini-item">
+      <div class="mini-thumb mt1">📖</div>
+      <div><div class="mini-title">The Name of the Wind</div><div class="mini-qty">Qty: 1</div></div>
+      <span class="mini-price">£12.99</span>
+    </div>
+    <div class="mini-item">
+      <div class="mini-thumb mt2">🌟</div>
+      <div><div class="mini-title">The Way of Kings</div><div class="mini-qty">Qty: 2</div></div>
+      <span class="mini-price">£33.98</span>
+    </div>
+    <div class="mini-item">
+      <div class="mini-thumb mt3">✨</div>
+      <div><div class="mini-title">The Night Circus</div><div class="mini-qty">Qty: 1</div></div>
+      <span class="mini-price">£13.49</span>
+    </div>
+    <hr class="sum-divider" />
+    <div class="sum-row"><span>Subtotal</span><span>£60.46</span></div>
+    <div class="sum-row"><span>Delivery</span><span>£2.99</span></div>
+    <div class="sum-row"><span>Discount</span><span style="color:#059669;">−£3.00</span></div>
+    <div class="sum-row"><span>Gift Points</span><span style="color:#059669;">−£0.00</span></div>
+    <hr class="sum-divider" />
+    <div class="sum-row total"><span>Total</span><span>£60.45</span></div>
+    <button class="place-order-btn">Place Order →</button>
+    <div class="secure-note">🔒 SSL secured · 256-bit encryption</div>
+  </div>
+</div>
+
+<footer>&copy; 2025 BookHaven. All rights reserved.</footer>
+</body>
+</html>
